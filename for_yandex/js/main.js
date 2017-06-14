@@ -28,8 +28,6 @@ var svg = d3.select("body").append("svg")
 
 d3.tsv("data.tsv", function (error, data) {
 
-    console.log(data);
-
     data.forEach(function (d) {
         d.frequency = +d.frequency;
     });
