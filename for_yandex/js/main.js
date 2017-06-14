@@ -7,7 +7,6 @@ var formatPercent = d3.format(".0%");
 var y = d3.scale.ordinal()
     .rangeRoundBands([0, height], .1, 1);
 
-
 var x = d3.scale.linear()
     .range([width, 0]);
 
@@ -28,6 +27,8 @@ var svg = d3.select("body").append("svg")
 
 
 d3.tsv("data.tsv", function (error, data) {
+
+    console.log(data);
 
     data.forEach(function (d) {
         d.frequency = +d.frequency;
@@ -63,12 +64,28 @@ d3.tsv("data.tsv", function (error, data) {
             return y(d.letter);
         })
         .attr("height", y.rangeBand())
-        .attr("x", function (d) {
-            return x(d.frequency);
+        .attr("x", function () {
+            return 0;
         })
         .attr("width", function (d) {
             return width - x(d.frequency);
-        });
+        })
+
+    var scrollHeight = Math.max(
+        document.body.scrollHeight, document.documentElement.scrollHeight,
+        document.body.offsetHeight, document.documentElement.offsetHeight,
+        document.body.clientHeight, document.documentElement.clientHeight
+    );
+
+    window.onscroll = function(e){
+        svg.selectAll('.bar')
+            .style('fill', function(){
+                var scrollY = window.scrollY;
+                return scrollY > (scrollHeight / 10)
+                    ? "rgb(180," + (scrollHeight - scrollY) * 0.05 + "," + (scrollHeight - scrollY) * 0.05 + ")"
+                    : "rgb(" + scrollY / 2 + ",180," + scrollY / 2 + ")"
+            });
+    };
 
     d3.select("input").on("change", change);
 
@@ -113,21 +130,3 @@ d3.tsv("data.tsv", function (error, data) {
             .delay(delay);
     }
 });
-
-var scrollHeight = Math.max(
-    document.body.scrollHeight, document.documentElement.scrollHeight,
-    document.body.offsetHeight, document.documentElement.offsetHeight,
-    document.body.clientHeight, document.documentElement.clientHeight
-);
-
-$(window).on({
-        scroll: function (e) {
-            var scrollY = window.scrollY;
-            if (scrollY > (scrollHeight / 10)) {
-                $('.bar').css('fill', "rgb(180," + (scrollHeight - scrollY) * 0.05 + "," + (scrollHeight - scrollY) * 0.05 + ")");
-            } else if (scrollY < (scrollHeight / 10)) {
-                $('.bar').css('fill', "rgb(" + scrollY / 2 + ",180," + scrollY / 2 + ")");
-            }
-        }
-    }
-);
